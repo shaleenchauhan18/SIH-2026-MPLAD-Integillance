@@ -1,0 +1,833 @@
+<title>MPLAD Intelligence</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Source+Serif+4:opsz,wght@8..60,500;8..60,600;8..60,700&family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#f3f4f7;
+    --surface:#ffffff;
+    --panel:#ffffff;
+    --panel-2:#f7f8fa;
+    --border:#dde1e9;
+    --border-strong:#c7ccd6;
+    --text:#161c2b;
+    --muted:#5c6478;
+    --muted-2:#848d9f;
+    --accent:#2f5fae;
+    --accent-soft:rgba(47,95,174,.10);
+    --accent-soft-strong:rgba(47,95,174,.18);
+    --low:#1c8a5c;
+    --low-soft:rgba(28,138,92,.12);
+    --medium:#a9740f;
+    --medium-soft:rgba(169,116,15,.13);
+    --high:#b85a20;
+    --high-soft:rgba(184,90,32,.13);
+    --critical:#ae3730;
+    --critical-soft:rgba(174,55,48,.13);
+    --shadow: 0 1px 2px rgba(20,24,38,.04), 0 8px 24px -12px rgba(20,24,38,.12);
+    color-scheme: light;
+  }
+  @media (prefers-color-scheme: dark){
+    :root:not([data-theme="light"]){
+      --bg:#0a0e1a;
+      --surface:#10151f;
+      --panel:#121826;
+      --panel-2:#161d2c;
+      --border:#242d40;
+      --border-strong:#33405a;
+      --text:#e9ecf3;
+      --muted:#96a0b5;
+      --muted-2:#6d7690;
+      --accent:#6f9bf2;
+      --accent-soft:rgba(111,155,242,.14);
+      --accent-soft-strong:rgba(111,155,242,.24);
+      --low:#3fb883;
+      --low-soft:rgba(63,184,131,.14);
+      --medium:#e2ac47;
+      --medium-soft:rgba(226,172,71,.14);
+      --high:#ec8b52;
+      --high-soft:rgba(236,139,82,.14);
+      --critical:#ec6459;
+      --critical-soft:rgba(236,100,89,.16);
+      --shadow: 0 1px 2px rgba(0,0,0,.3), 0 12px 28px -14px rgba(0,0,0,.6);
+      color-scheme: dark;
+    }
+  }
+  :root[data-theme="dark"]{
+    --bg:#0a0e1a;
+    --surface:#10151f;
+    --panel:#121826;
+    --panel-2:#161d2c;
+    --border:#242d40;
+    --border-strong:#33405a;
+    --text:#e9ecf3;
+    --muted:#96a0b5;
+    --muted-2:#6d7690;
+    --accent:#6f9bf2;
+    --accent-soft:rgba(111,155,242,.14);
+    --accent-soft-strong:rgba(111,155,242,.24);
+    --low:#3fb883;
+    --low-soft:rgba(63,184,131,.14);
+    --medium:#e2ac47;
+    --medium-soft:rgba(226,172,71,.14);
+    --high:#ec8b52;
+    --high-soft:rgba(236,139,82,.14);
+    --critical:#ec6459;
+    --critical-soft:rgba(236,100,89,.16);
+    --shadow: 0 1px 2px rgba(0,0,0,.3), 0 12px 28px -14px rgba(0,0,0,.6);
+    color-scheme: dark;
+  }
+
+  *{box-sizing:border-box;}
+  body{
+    background:var(--bg); color:var(--text);
+    font-family:"IBM Plex Sans", ui-sans-serif, system-ui, sans-serif;
+    font-size:14px; line-height:1.5;
+    -webkit-font-smoothing:antialiased;
+  }
+  h1,h2,h3{font-family:"Source Serif 4", Georgia, serif; text-wrap:balance; margin:0;}
+  .num{font-variant-numeric:tabular-nums;}
+  .mono{font-family:"IBM Plex Mono", ui-monospace, monospace;}
+  a{color:var(--accent); text-decoration:none;}
+  a:hover{text-decoration:underline;}
+  button{font-family:inherit; cursor:pointer;}
+  ::selection{background:var(--accent-soft-strong);}
+
+  /* ---- Masthead ---- */
+  #masthead{
+    background:var(--surface); border-bottom:1px solid var(--border);
+    position:sticky; top:0; z-index:40;
+  }
+  #masthead .inner{
+    max-width:1320px; margin:0 auto; padding:14px 24px;
+    display:flex; align-items:center; gap:18px; flex-wrap:wrap;
+  }
+  .wordmark{display:flex; align-items:center; gap:11px;}
+  .wordmark .mark{
+    width:36px; height:36px; border-radius:8px;
+    background:linear-gradient(155deg, var(--accent), #1c3f82);
+    display:flex; align-items:center; justify-content:center;
+    color:#fff; font-family:"Source Serif 4",serif; font-weight:700; font-size:18px;
+    flex:none;
+  }
+  .wordmark .title{font-family:"Source Serif 4",serif; font-weight:600; font-size:18px; letter-spacing:.2px;}
+  .wordmark .sub{font-size:11px; color:var(--muted); margin-top:1px;}
+  #tabs{display:flex; gap:2px; margin-left:8px; flex-wrap:wrap;}
+  #tabs a{
+    padding:7px 13px; border-radius:7px; font-size:13.5px; font-weight:500;
+    color:var(--muted); border:1px solid transparent;
+  }
+  #tabs a:hover{color:var(--text); text-decoration:none; background:var(--panel-2);}
+  #tabs a.active{color:var(--text); background:var(--accent-soft); border-color:var(--accent-soft-strong); text-decoration:none;}
+  .masthead-note{margin-left:auto; font-size:11.5px; color:var(--muted-2); text-align:right; max-width:220px;}
+  #theme-toggle{
+    border:1px solid var(--border); background:var(--panel-2); color:var(--muted);
+    border-radius:7px; padding:6px 9px; font-size:12px; line-height:1;
+  }
+  #theme-toggle:hover{color:var(--text);}
+
+  main{max-width:1320px; margin:0 auto; padding:24px;}
+  footer{
+    max-width:1320px; margin:0 auto; padding:18px 24px 40px; color:var(--muted-2);
+    font-size:11.5px; border-top:1px solid var(--border); margin-top:32px;
+  }
+
+  /* ---- Layout helpers ---- */
+  .page-head{margin-bottom:20px;}
+  .page-head h1{font-size:25px;}
+  .page-head p{color:var(--muted); font-size:13.5px; margin-top:5px; max-width:70ch;}
+  .grid{display:grid; gap:14px;}
+  .kpis{grid-template-columns:repeat(4,1fr);}
+  .cols-2{grid-template-columns:1.1fr 1.6fr;}
+  .cols-2b{grid-template-columns:1fr 1fr;}
+  @media (max-width:980px){ .kpis{grid-template-columns:repeat(2,1fr);} .cols-2, .cols-2b{grid-template-columns:1fr;} }
+
+  .card{
+    background:var(--panel); border:1px solid var(--border); border-radius:11px;
+    padding:16px; box-shadow:var(--shadow);
+  }
+  .card > .card-title{font-size:12.5px; font-weight:600; color:var(--muted); text-transform:uppercase; letter-spacing:.05em; margin-bottom:12px;}
+
+  .kpi .label{font-size:11.5px; font-weight:600; color:var(--muted); text-transform:uppercase; letter-spacing:.06em;}
+  .kpi .value{font-family:"Source Serif 4",serif; font-size:29px; font-weight:600; margin-top:6px;}
+  .kpi .sub{font-size:11.5px; color:var(--muted-2); margin-top:4px;}
+  .kpi.tone-critical .value{color:var(--critical);}
+  .kpi.tone-high .value{color:var(--high);}
+  .kpi.tone-medium .value{color:var(--medium);}
+  .kpi.tone-low .value{color:var(--low);}
+
+  .chip{
+    display:inline-flex; align-items:center; gap:5px; padding:2.5px 9px; border-radius:99px;
+    font-size:11.5px; font-weight:600; border:1px solid transparent; white-space:nowrap;
+  }
+  .chip.risk-LOW{background:var(--low-soft); color:var(--low); border-color:color-mix(in srgb, var(--low) 35%, transparent);}
+  .chip.risk-MEDIUM{background:var(--medium-soft); color:var(--medium); border-color:color-mix(in srgb, var(--medium) 35%, transparent);}
+  .chip.risk-HIGH{background:var(--high-soft); color:var(--high); border-color:color-mix(in srgb, var(--high) 35%, transparent);}
+  .chip.risk-CRITICAL{background:var(--critical-soft); color:var(--critical); border-color:color-mix(in srgb, var(--critical) 35%, transparent);}
+  .dot{width:7px; height:7px; border-radius:50%; flex:none; background:currentColor;}
+
+  table{width:100%; border-collapse:collapse;}
+  thead th{
+    text-align:left; font-size:10.5px; font-weight:600; color:var(--muted); text-transform:uppercase;
+    letter-spacing:.06em; padding:0 10px 8px; border-bottom:1px solid var(--border);
+  }
+  tbody td{padding:9px 10px; border-bottom:1px solid var(--border); font-size:13px; vertical-align:middle;}
+  tbody tr:last-child td{border-bottom:none;}
+  tbody tr.rowlink:hover{background:var(--panel-2); cursor:pointer;}
+  .table-wrap{overflow-x:auto;}
+  .num-cell{font-family:"IBM Plex Mono",monospace; font-variant-numeric:tabular-nums; font-size:12.5px;}
+
+  .filter-bar{display:flex; flex-wrap:wrap; gap:8px; margin-bottom:14px;}
+  .filter-bar input[type=text], .filter-bar select{
+    background:var(--panel-2); border:1px solid var(--border); color:var(--text);
+    border-radius:7px; padding:7px 10px; font-size:13px; font-family:inherit;
+  }
+  .filter-bar input[type=text]{flex:1 1 220px; min-width:180px;}
+  .filter-bar select{min-width:130px;}
+  .btn{
+    border:1px solid var(--border); background:var(--panel-2); color:var(--text);
+    border-radius:7px; padding:7px 13px; font-size:13px; font-weight:500;
+  }
+  .btn:hover{border-color:var(--border-strong);}
+  .btn.primary{background:var(--accent); border-color:var(--accent); color:#fff;}
+  .btn.primary:hover{filter:brightness(1.06);}
+  .btn:disabled{opacity:.4; cursor:default;}
+
+  .pager{display:flex; align-items:center; justify-content:space-between; margin-top:12px; font-size:12.5px; color:var(--muted);}
+  .pager .btns{display:flex; gap:8px;}
+
+  .field-grid{display:grid; grid-template-columns:repeat(4,1fr); gap:14px 18px;}
+  @media (max-width:760px){.field-grid{grid-template-columns:repeat(2,1fr);}}
+  .field .k{font-size:10px; text-transform:uppercase; letter-spacing:.06em; color:var(--muted-2); font-weight:600;}
+  .field .v{font-size:13.5px; margin-top:3px;}
+
+  .sig-row td{vertical-align:top;}
+  .sev{font-size:11px; font-weight:700; padding:2px 8px; border-radius:5px;}
+  .sev.High{background:var(--high-soft); color:var(--high);}
+  .sev.Medium{background:var(--medium-soft); color:var(--medium);}
+  .sev.Low{background:var(--low-soft); color:var(--low);}
+
+  .bar-list .row{display:grid; grid-template-columns:150px 1fr 46px; gap:10px; align-items:center; margin-bottom:9px;}
+  .bar-list .row:last-child{margin-bottom:0;}
+  .bar-list .name{font-size:12.5px; color:var(--muted); white-space:nowrap; overflow:hidden; text-overflow:ellipsis;}
+  .bar-list .track{background:var(--panel-2); border-radius:5px; height:9px; overflow:hidden; border:1px solid var(--border);}
+  .bar-list .fill{height:100%; border-radius:5px 0 0 5px;}
+  .bar-list .val{font-size:12px; text-align:right; font-family:"IBM Plex Mono",monospace; color:var(--muted);}
+
+  .legend{display:flex; gap:14px; flex-wrap:wrap; font-size:12px; color:var(--muted); margin-top:10px;}
+  .legend .item{display:flex; align-items:center; gap:6px;}
+
+  .breadcrumb{font-size:12.5px; color:var(--muted); margin-bottom:14px;}
+  .compare-block{margin-bottom:16px;}
+  .compare-block:last-child{margin-bottom:0;}
+  .compare-block .head{display:flex; justify-content:space-between; font-size:12.5px; margin-bottom:8px;}
+  .compare-block .head .dev{font-family:"IBM Plex Mono",monospace; font-weight:600;}
+  .compare-block .dev.up{color:var(--high);}
+  .compare-block .dev.down{color:var(--low);}
+
+  .rec-list{list-style:none; margin:0; padding:0; display:flex; flex-direction:column; gap:9px;}
+  .rec-list li{display:flex; gap:10px; font-size:13px;}
+  .rec-list .n{
+    flex:none; width:20px; height:20px; border-radius:50%; background:var(--accent-soft); color:var(--accent);
+    font-size:11px; font-weight:700; display:flex; align-items:center; justify-content:center; margin-top:1px;
+  }
+
+  .empty{padding:36px 10px; text-align:center; color:var(--muted); font-size:13px;}
+
+  .qa-bubble{border:1px solid var(--border); border-radius:10px; padding:13px 15px; margin-bottom:12px; background:var(--panel);}
+  .qa-q{font-size:11px; text-transform:uppercase; letter-spacing:.06em; color:var(--muted-2); font-weight:600;}
+  .qa-q-text{font-size:13.5px; font-weight:600; margin-top:3px;}
+  .qa-a{font-size:11px; text-transform:uppercase; letter-spacing:.06em; color:var(--muted-2); font-weight:600; margin-top:10px;}
+  .qa-a-text{white-space:pre-wrap; font-size:13.5px; line-height:1.65; margin-top:4px;}
+  .qa-cites{display:flex; flex-wrap:wrap; gap:6px; margin-top:10px;}
+  .qa-suggest{display:flex; flex-wrap:wrap; gap:7px; margin-top:10px;}
+  .qa-suggest button{
+    font-size:12px; padding:5px 10px; border-radius:99px; border:1px solid var(--border);
+    background:var(--panel-2); color:var(--muted);
+  }
+  .qa-suggest button:hover{color:var(--text); border-color:var(--border-strong);}
+
+  .gauge-wrap{display:flex; align-items:center; gap:18px;}
+  .gauge-meta .tag{font-size:11px; text-transform:uppercase; letter-spacing:.07em; color:var(--muted-2); font-weight:600;}
+  .gauge-meta .cat{font-family:"Source Serif 4",serif; font-size:27px; font-weight:600; margin-top:2px;}
+  .gauge-meta .desc{font-size:12px; color:var(--muted); margin-top:5px; max-width:30ch;}
+
+  .notice{
+    border:1px solid var(--border-strong); background:var(--panel-2); border-radius:9px;
+    padding:10px 13px; font-size:12px; color:var(--muted); display:flex; gap:9px; align-items:flex-start;
+  }
+  .notice b{color:var(--text);}
+
+  .relwrap{display:flex; flex-wrap:wrap; gap:10px;}
+  .relnode{
+    border:1px solid var(--border); background:var(--panel-2); border-radius:9px; padding:10px 13px; min-width:150px;
+  }
+  .relnode .rt{font-size:9.5px; text-transform:uppercase; letter-spacing:.07em; font-weight:700;}
+  .relnode .rl{font-size:12.5px; margin-top:3px; font-weight:500;}
+  .relnode.project{border-color:var(--accent); background:var(--accent-soft);}
+  .relnode.project .rt{color:var(--accent);}
+  .relnode.agency .rt{color:var(--high);}
+  .relnode.location .rt{color:#3f9ab0;}
+  .relnode.vendor .rt{color:#8a6fd6;}
+  .relnode.peer .rt{color:var(--medium);}
+
+  #print-area{display:none;}
+  @media print{
+    #masthead, #tabs, footer, .no-print{display:none !important;}
+    body{background:#fff; color:#111;}
+    main{max-width:100%; padding:0;}
+  }
+  @media (prefers-reduced-motion: no-preference){
+    .card, .kpi{transition:box-shadow .15s ease;}
+  }
+</style>
+
+<div id="masthead">
+  <div class="inner">
+    <a class="wordmark" href="#/dashboard" style="text-decoration:none;">
+      <div class="mark">M</div>
+      <div>
+        <div class="title">MPLAD Intelligence</div>
+        <div class="sub">Risk screening &amp; investigation prototype · SIH26102</div>
+      </div>
+    </a>
+    <nav id="tabs">
+      <a href="#/dashboard" data-tab="dashboard">Dashboard</a>
+      <a href="#/projects" data-tab="projects">Projects</a>
+      <a href="#/geo" data-tab="geo">Geographic</a>
+      <a href="#/agencies" data-tab="agencies">Agencies</a>
+      <a href="#/ask" data-tab="ask">Ask AI</a>
+    </nav>
+    <div class="masthead-note no-print">Demo dataset · synthetic · not real government records</div>
+    <button id="theme-toggle" class="no-print" title="Toggle theme">◐</button>
+  </div>
+</div>
+
+<main id="view"></main>
+
+<footer class="no-print">
+  © 2026 MPLAD Intelligence Prototype · Findings are risk indicators requiring human verification, not proof of fraud or wrongdoing.
+</footer>
+
+<script id="appdata" type="application/json">__DATA__</script>
+<script>
+(function(){
+  "use strict";
+  var DATA = JSON.parse(document.getElementById('appdata').textContent);
+  var PROJECTS = DATA.projects;
+  var AGENCIES = DATA.agencies;
+  var DASH = DATA.dashboard;
+  var OPTS = DATA.opts;
+  var byId = {};
+  PROJECTS.forEach(function(p){ byId[p.id] = p; });
+
+  var RISK_COLOR = {LOW:'var(--low)', MEDIUM:'var(--medium)', HIGH:'var(--high)', CRITICAL:'var(--critical)'};
+  var RISK_COLOR_HEX = {LOW:'#1c8a5c', MEDIUM:'#a9740f', HIGH:'#b85a20', CRITICAL:'#ae3730'};
+
+  // ---------- theme toggle ----------
+  var root = document.documentElement;
+  function applyStoredTheme(){
+    var saved = null;
+    try { saved = localStorage.getItem('mplad-theme'); } catch(e){}
+    if (saved === 'dark' || saved === 'light') root.setAttribute('data-theme', saved);
+  }
+  applyStoredTheme();
+  document.getElementById('theme-toggle').addEventListener('click', function(){
+    var cur = root.getAttribute('data-theme');
+    var mql = window.matchMedia('(prefers-color-scheme: dark)').matches;
+    var next;
+    if (!cur) next = mql ? 'light' : 'dark';
+    else next = cur === 'dark' ? 'light' : 'dark';
+    root.setAttribute('data-theme', next);
+    try { localStorage.setItem('mplad-theme', next); } catch(e){}
+  });
+
+  // ---------- helpers ----------
+  function esc(s){ return String(s==null?'':s).replace(/[&<>"']/g, function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c];}); }
+  function inrLakh(n){
+    var lakh = n/100000;
+    if (lakh >= 100) return '₹' + (lakh/100).toFixed(2) + ' Cr';
+    return '₹' + lakh.toFixed(2) + ' L';
+  }
+  function inr(n){ return '₹' + Math.round(n).toLocaleString('en-IN'); }
+  function pct(n, d){ if (n===null||n===undefined||!isFinite(n)) return '—'; d = d||0; return (n>0?'+':'') + n.toFixed(d) + '%'; }
+  function fmtDate(s){ return s || '—'; }
+  function daysBetween(a,b){ return Math.round((new Date(b).getTime()-new Date(a).getTime())/86400000); }
+
+  function chip(cat, score){
+    return '<span class="chip risk-'+cat+'"><span class="dot"></span>'+cat+(typeof score==='number' ? ' &middot; '+score : '')+'</span>';
+  }
+
+  function card(titleHtml, innerHtml, extraStyle){
+    return '<div class="card"'+(extraStyle?' style="'+extraStyle+'"':'')+'>'+
+      (titleHtml ? '<div class="card-title">'+titleHtml+'</div>' : '') + innerHtml + '</div>';
+  }
+
+  // ---------- SVG charts ----------
+  function donut(entries, size){
+    size = size || 200;
+    var r = size*0.34, cx = size/2, cy = size/2, sw = size*0.16;
+    var total = entries.reduce(function(s,e){return s+e.value;},0) || 1;
+    var circ = 2*Math.PI*r;
+    var offset = 0;
+    var arcs = entries.map(function(e){
+      var frac = e.value/total;
+      var len = frac*circ;
+      var seg = '<circle cx="'+cx+'" cy="'+cy+'" r="'+r+'" fill="none" stroke="'+e.color+'" stroke-width="'+sw+'" '+
+        'stroke-dasharray="'+len+' '+(circ-len)+'" stroke-dashoffset="'+(-offset)+'" transform="rotate(-90 '+cx+' '+cy+')" stroke-linecap="butt" />';
+      offset += len;
+      return seg;
+    }).join('');
+    return '<svg viewBox="0 0 '+size+' '+size+'" width="100%" height="'+size+'" role="img" aria-label="risk distribution donut chart">'+
+      '<circle cx="'+cx+'" cy="'+cy+'" r="'+r+'" fill="none" stroke="var(--border)" stroke-width="'+sw+'" />'+
+      arcs+
+      '<text x="'+cx+'" y="'+(cy-2)+'" text-anchor="middle" font-family="Source Serif 4, serif" font-size="'+(size*0.13)+'" font-weight="600" fill="var(--text)">'+total+'</text>'+
+      '<text x="'+cx+'" y="'+(cy+16)+'" text-anchor="middle" font-size="10" fill="var(--muted)">projects</text>'+
+      '</svg>';
+  }
+
+  function barList(entries, opts){
+    opts = opts || {};
+    var max = Math.max.apply(null, entries.map(function(e){return e.value;}).concat([1]));
+    return '<div class="bar-list">' + entries.map(function(e){
+      var w = Math.max(3, (e.value/max)*100);
+      return '<div class="row"><div class="name" title="'+esc(e.label)+'">'+esc(e.label)+'</div>'+
+        '<div class="track"><div class="fill" style="width:'+w+'%;background:'+(e.color||'var(--accent)')+'"></div></div>'+
+        '<div class="val">'+e.value+'</div></div>';
+    }).join('') + '</div>';
+  }
+
+  function compareBars(label, projectVal, peerVal, fmt){
+    fmt = fmt || function(v){return v;};
+    var max = Math.max(projectVal, peerVal, 1) * 1.05;
+    var pw = Math.max(2, (projectVal/max)*100);
+    var mw = Math.max(2, (peerVal/max)*100);
+    var dev = peerVal ? ((projectVal-peerVal)/peerVal*100) : null;
+    var devClass = dev===null ? '' : (dev>0?'up':'down');
+    return '<div class="compare-block">'+
+      '<div class="head"><span>'+label+'</span><span class="dev '+devClass+'">'+(dev===null?'—':pct(dev,0))+'</span></div>'+
+      '<div class="bar-list"><div class="row"><div class="name">This project</div><div class="track"><div class="fill" style="width:'+pw+'%;background:var(--critical)"></div></div><div class="val">'+fmt(projectVal)+'</div></div>'+
+      '<div class="row"><div class="name">Peer median</div><div class="track"><div class="fill" style="width:'+mw+'%;background:var(--accent)"></div></div><div class="val">'+fmt(peerVal)+'</div></div></div>'+
+      '</div>';
+  }
+
+  function gauge(score, cat){
+    var size=132, r=52, cx=size/2, cy=size/2, sw=15;
+    var circ=2*Math.PI*r;
+    var dash=(Math.max(0,Math.min(100,score))/100)*circ;
+    var color = RISK_COLOR[cat];
+    return '<svg width="'+size+'" height="'+size+'" viewBox="0 0 '+size+' '+size+'" role="img" aria-label="risk score gauge">'+
+      '<circle cx="'+cx+'" cy="'+cy+'" r="'+r+'" fill="none" stroke="var(--border)" stroke-width="'+sw+'" />'+
+      '<circle cx="'+cx+'" cy="'+cy+'" r="'+r+'" fill="none" stroke="'+color+'" stroke-width="'+sw+'" stroke-linecap="round" '+
+      'stroke-dasharray="'+dash+' '+(circ-dash)+'" transform="rotate(-90 '+cx+' '+cy+')" />'+
+      '<text x="'+cx+'" y="'+(cy+2)+'" text-anchor="middle" font-family="Source Serif 4, serif" font-size="28" font-weight="700" fill="var(--text)">'+score+'</text>'+
+      '<text x="'+cx+'" y="'+(cy+21)+'" text-anchor="middle" font-size="10.5" fill="var(--muted)">/ 100</text>'+
+      '</svg>';
+  }
+
+  // ---------- Router ----------
+  var routes = {
+    dashboard: renderDashboard,
+    projects: renderProjects,
+    project: renderProjectDetail,
+    geo: renderGeo,
+    agencies: renderAgencies,
+    ask: renderAsk
+  };
+
+  function route(){
+    var hash = location.hash.replace(/^#\/?/, '') || 'dashboard';
+    var parts = hash.split('/');
+    var key = parts[0] || 'dashboard';
+    var arg = parts[1];
+    var fn = routes[key] || renderDashboard;
+    document.querySelectorAll('#tabs a').forEach(function(a){
+      a.classList.toggle('active', a.getAttribute('data-tab') === (key==='project'?'projects':key));
+    });
+    document.getElementById('view').innerHTML = fn(arg);
+    window.scrollTo(0,0);
+    wireView(key, arg);
+  }
+  window.addEventListener('hashchange', route);
+
+  // ---------- Dashboard ----------
+  function renderDashboard(){
+    var k = DASH.kpis;
+    var riskEntries = ['LOW','MEDIUM','HIGH','CRITICAL'].map(function(c){return {label:c, value:DASH.riskDistribution[c]||0, color:RISK_COLOR[c]};});
+    var sigEntries = Object.keys(DASH.signalCounts).map(function(k2){return {label:k2, value:DASH.signalCounts[k2]};})
+      .sort(function(a,b){return b.value-a.value;}).slice(0,8);
+    sigEntries.forEach(function(e){e.color='var(--high)';});
+    var statusEntries = Object.keys(DASH.statusCount).map(function(k2){return {label:k2, value:DASH.statusCount[k2]};}).sort(function(a,b){return b.value-a.value;});
+    statusEntries.forEach(function(e){e.color='var(--accent)';});
+    var catEntries = Object.keys(DASH.categoryCount).map(function(k2){return {label:k2, value:DASH.categoryCount[k2]};}).sort(function(a,b){return b.value-a.value;});
+    catEntries.forEach(function(e){e.color='#3f9ab0';});
+
+    var top = PROJECTS.filter(function(p){return p.riskCategory==='HIGH'||p.riskCategory==='CRITICAL';})
+      .sort(function(a,b){return b.riskScore-a.riskScore;}).slice(0,10);
+
+    return ''+
+    '<div class="page-head"><h1>Executive Dashboard</h1><p>A high-level view of the MPLAD portfolio: total activity, risk concentration, delays and data quality. All figures are computed live from the underlying dataset.</p></div>'+
+    '<div class="grid kpis" style="margin-bottom:14px;">'+
+      kpiTile('Total Projects', k.totalProjects.toLocaleString('en-IN'), '', '')+
+      kpiTile('Total Sanctioned', inrLakh(k.totalValue), 'Expenditure '+inrLakh(k.totalExpenditure), '')+
+      kpiTile('High Risk', k.highRisk, ((k.highRisk/k.totalProjects)*100).toFixed(1)+'% of portfolio', 'high')+
+      kpiTile('Critical Risk', k.criticalRisk, ((k.criticalRisk/k.totalProjects)*100).toFixed(1)+'% of portfolio', 'critical')+
+      kpiTile('Delayed / Stalled', k.delayed, '', 'medium')+
+      kpiTile('Financial Anomalies', k.financialAnomalies, 'Cost outlier + over-run', 'high')+
+      kpiTile('Data Quality Issues', k.dataQualityIssues, '', 'medium')+
+      kpiTile('Low Risk', DASH.riskDistribution.LOW, ((DASH.riskDistribution.LOW/k.totalProjects)*100).toFixed(0)+'% clean', 'low')+
+    '</div>'+
+    '<div class="grid cols-2" style="margin-bottom:14px;">'+
+      card('Risk distribution', donut(riskEntries,190)+'<div class="legend">'+riskEntries.map(function(e){return '<span class="item"><span class="dot" style="background:'+e.color+'"></span>'+e.label+' ('+e.value+')</span>';}).join('')+'</div>')+
+      card('Anomaly signal frequency', barList(sigEntries))+
+    '</div>'+
+    '<div class="grid cols-2b" style="margin-bottom:14px;">'+
+      card('Project status', barList(statusEntries))+
+      card('Projects by category', barList(catEntries))+
+    '</div>'+
+    card('Top high-risk projects', '<div class="table-wrap"><table><thead><tr><th>ID</th><th>Project</th><th>State</th><th>Category</th><th>Sanctioned</th><th>Status</th><th>Risk</th></tr></thead><tbody>'+
+      top.map(function(p){return '<tr class="rowlink" data-goto="#/project/'+p.id+'"><td class="mono num-cell">'+p.id+'</td><td><a href="#/project/'+p.id+'">'+esc(p.name)+'</a></td><td>'+esc(p.state)+'</td><td>'+esc(p.category)+'</td><td class="num-cell">'+inrLakh(p.sanctionedAmount)+'</td><td>'+esc(p.status)+'</td><td>'+chip(p.riskCategory,p.riskScore)+'</td></tr>';}).join('')+
+      '</tbody></table></div>');
+  }
+
+  function kpiTile(label, value, sub, tone){
+    return '<div class="card kpi'+(tone?' tone-'+tone:'')+'"><div class="label">'+label+'</div><div class="value num">'+value+'</div>'+(sub?'<div class="sub">'+sub+'</div>':'')+'</div>';
+  }
+
+  // ---------- Projects ----------
+  var pState = { q:'', state:'', district:'', category:'', status:'', risk:'', agency:'', sort:'risk', page:1 };
+  var PAGE_SIZE = 25;
+
+  function filteredProjects(){
+    var list = PROJECTS.filter(function(p){
+      if (pState.q){
+        var q = pState.q.toLowerCase();
+        if (p.id.toLowerCase().indexOf(q)===-1 && p.name.toLowerCase().indexOf(q)===-1) return false;
+      }
+      if (pState.state && p.state!==pState.state) return false;
+      if (pState.district && p.district!==pState.district) return false;
+      if (pState.category && p.category!==pState.category) return false;
+      if (pState.status && p.status!==pState.status) return false;
+      if (pState.risk && p.riskCategory!==pState.risk) return false;
+      if (pState.agency && p.agency!==pState.agency) return false;
+      return true;
+    });
+    var s = pState.sort;
+    list.sort(function(a,b){
+      if (s==='amount') return b.sanctionedAmount-a.sanctionedAmount;
+      if (s==='date') return b.startDate.localeCompare(a.startDate);
+      if (s==='name') return a.name.localeCompare(b.name);
+      return b.riskScore-a.riskScore;
+    });
+    return list;
+  }
+
+  function selectOptions(list, cur, allLabel){
+    return '<option value="">'+allLabel+'</option>' + list.map(function(o){return '<option value="'+esc(o)+'"'+(o===cur?' selected':'')+'>'+esc(o)+'</option>';}).join('');
+  }
+
+  function renderProjects(){
+    return ''+
+    '<div class="page-head"><h1>Projects</h1><p>Search, filter and open any project to see risk signals, evidence and investigation recommendations.</p></div>'+
+    '<div class="card" style="margin-bottom:14px;">'+
+      '<div class="filter-bar">'+
+        '<input type="text" id="f-q" placeholder="Search by ID or name" value="'+esc(pState.q)+'">'+
+        '<select id="f-sort"><option value="risk"'+(pState.sort==='risk'?' selected':'')+'>Sort: highest risk</option><option value="amount"'+(pState.sort==='amount'?' selected':'')+'>Sort: sanctioned amount</option><option value="date"'+(pState.sort==='date'?' selected':'')+'>Sort: start date</option><option value="name"'+(pState.sort==='name'?' selected':'')+'>Sort: name</option></select>'+
+        '<button class="btn" id="f-clear">Clear filters</button>'+
+      '</div>'+
+      '<div class="filter-bar">'+
+        '<select id="f-risk">'+selectOptions(OPTS.risks, pState.risk, 'Risk: all')+'</select>'+
+        '<select id="f-state">'+selectOptions(OPTS.states, pState.state, 'State: all')+'</select>'+
+        '<select id="f-district">'+selectOptions(OPTS.districts, pState.district, 'District: all')+'</select>'+
+        '<select id="f-category">'+selectOptions(OPTS.categories, pState.category, 'Category: all')+'</select>'+
+        '<select id="f-status">'+selectOptions(OPTS.statuses, pState.status, 'Status: all')+'</select>'+
+        '<select id="f-agency">'+selectOptions(OPTS.agencies, pState.agency, 'Agency: all')+'</select>'+
+      '</div>'+
+    '</div>'+
+    '<div id="projects-table"></div>';
+  }
+
+  function renderProjectsTable(){
+    var list = filteredProjects();
+    var total = list.length;
+    var pages = Math.max(1, Math.ceil(total/PAGE_SIZE));
+    if (pState.page > pages) pState.page = pages;
+    var start = (pState.page-1)*PAGE_SIZE;
+    var items = list.slice(start, start+PAGE_SIZE);
+    var rows = items.length ? items.map(function(p){
+      return '<tr class="rowlink" data-goto="#/project/'+p.id+'">'+
+        '<td class="mono num-cell">'+p.id+'</td>'+
+        '<td><a href="#/project/'+p.id+'">'+esc(p.name)+'</a></td>'+
+        '<td>'+esc(p.state)+' &middot; '+esc(p.district)+'</td>'+
+        '<td>'+esc(p.category)+'</td>'+
+        '<td class="num-cell">'+inrLakh(p.sanctionedAmount)+'</td>'+
+        '<td>'+esc(p.status)+'</td>'+
+        '<td>'+esc(p.agency)+'</td>'+
+        '<td>'+chip(p.riskCategory,p.riskScore)+'</td></tr>';
+    }).join('') : '<tr><td colspan="8" class="empty">No projects match the current filters.</td></tr>';
+    return card(null, '<div class="table-wrap"><table><thead><tr><th>ID</th><th>Project</th><th>State / District</th><th>Category</th><th>Sanctioned</th><th>Status</th><th>Agency</th><th>Risk</th></tr></thead><tbody>'+rows+'</tbody></table></div>')+
+      '<div class="pager"><div>'+total.toLocaleString('en-IN')+' projects &middot; page '+pState.page+' / '+pages+'</div>'+
+      '<div class="btns"><button class="btn" id="p-prev" '+(pState.page<=1?'disabled':'')+'>Previous</button><button class="btn" id="p-next" '+(pState.page>=pages?'disabled':'')+'>Next</button></div></div>';
+  }
+
+  // ---------- Project detail ----------
+  function renderProjectDetail(id){
+    var p = byId[id];
+    if (!p) return '<div class="empty">Project '+esc(id)+' was not found in the current dataset. <a href="#/projects">Back to projects</a></div>';
+    var peers = p.peerIds.map(function(pid){return byId[pid];}).filter(Boolean);
+    var nowRef = '2026-09-01';
+    var duration = p.actualCompletionDate ? daysBetween(p.startDate, p.actualCompletionDate) : daysBetween(p.startDate, nowRef);
+
+    var sigRows = p.signals.length ? p.signals.slice().sort(function(a,b){return b.weight-a.weight;}).map(function(s){
+      return '<tr class="sig-row"><td style="font-weight:600;">'+esc(s.label)+'</td><td><span class="sev '+s.severity+'">'+s.severity+'</span></td><td class="mono">+'+s.weight+'</td><td>'+esc(s.explanation)+'</td></tr>';
+    }).join('') : '';
+    var sigTotal = p.signals.reduce(function(s,x){return s+x.weight;},0);
+
+    var qualityBlock = p.qualityIssues.length ? card('Data quality issues',
+      '<ul style="margin:0; padding-left:18px; display:flex; flex-direction:column; gap:6px; font-size:13px; color:var(--muted);">'+
+      p.qualityIssues.map(function(i){return '<li><b style="color:var(--text)">'+esc(i.label)+':</b> '+esc(i.detail)+'</li>';}).join('')+
+      '</ul><div class="notice" style="margin-top:12px;">Data quality issues are shown separately from risk indicators — they reduce confidence in the underlying record and should be corrected in the MPLAD MIS.</div>') : '';
+
+    var relNodes = [{id:p.id,label:p.id,type:'project'}, {label:p.agency,type:'agency'}, {label:p.district+', '+p.state,type:'location'}, {label:p.vendor||'N/A',type:'vendor'}]
+      .concat(peers.slice(0,4).map(function(q){return {id:q.id,label:q.id,type:'peer', link:true};}));
+    var relHtml = relNodes.map(function(n){
+      var inner = '<div class="relnode '+n.type+'"><div class="rt">'+n.type+'</div><div class="rl">'+(n.link?('<a href="#/project/'+n.id+'">'+esc(n.label)+'</a>'):esc(n.label))+'</div></div>';
+      return inner;
+    }).join('');
+
+    var explanation = explainProject(p);
+
+    return ''+
+    '<div class="breadcrumb no-print"><a href="#/projects">&larr; Back to projects</a></div>'+
+    '<div class="card" style="margin-bottom:14px;">'+
+      '<div style="display:flex; gap:24px; flex-wrap:wrap; align-items:flex-start;">'+
+        '<div style="flex:1 1 420px; min-width:280px;">'+
+          '<div class="mono" style="font-size:11.5px; color:var(--muted-2);">'+p.id+'</div>'+
+          '<h1 style="font-size:22px; margin-top:4px;">'+esc(p.name)+'</h1>'+
+          '<div style="font-size:13px; color:var(--muted); margin-top:6px;">'+esc(p.description)+'</div>'+
+          '<div class="field-grid" style="margin-top:16px;">'+
+            field('State', p.state)+field('District', p.district)+field('Constituency', p.constituency)+field('MP', p.mp)+
+            field('Category', p.category)+field('Status', p.status)+field('Agency', p.agency)+field('Vendor', p.vendor||'—')+
+            field('Sanctioned', inrLakh(p.sanctionedAmount))+field('Expenditure', inrLakh(p.expenditure))+
+            field('Start', p.startDate)+field('Expected', p.expectedCompletionDate)+
+            field('Actual', p.actualCompletionDate||'—')+field('Location', p.lat.toFixed(3)+', '+p.lng.toFixed(3))+
+          '</div>'+
+        '</div>'+
+        '<div style="flex:0 0 260px;">'+
+          '<div class="gauge-wrap">'+gauge(p.riskScore,p.riskCategory)+
+            '<div class="gauge-meta"><div class="tag">Risk Score</div><div class="cat" style="color:'+RISK_COLOR[p.riskCategory]+'">'+p.riskCategory+'</div>'+
+            '<div class="desc">Composite of financial, timeline, agency, geographic and data-quality signals.</div></div></div>'+
+          '<button class="btn primary no-print" style="margin-top:16px; width:100%;" onclick="window.print()">Print / Save investigation report</button>'+
+        '</div>'+
+      '</div>'+
+    '</div>'+
+    card('Risk signals contributing to the score', p.signals.length ?
+      '<div class="table-wrap"><table><thead><tr><th>Signal</th><th>Severity</th><th>Weight</th><th>Explanation</th></tr></thead><tbody>'+sigRows+
+      '</tbody><tfoot><tr><td style="font-weight:600; padding:9px 10px;">Total</td><td></td><td class="mono" style="padding:9px 10px;">'+sigTotal+'</td><td style="padding:9px 10px; color:var(--muted); font-size:12.5px;">Capped at 100. Category: '+chip(p.riskCategory,p.riskScore)+'</td></tr></tfoot></table></div>'
+      : '<div class="empty">No risk signals detected. Routine verification recommended.</div>', 'margin-top:14px;')+
+    '<div class="grid cols-2b" style="margin:14px 0;">'+
+      card('Cost vs peer median', compareBars('Sanctioned amount', p.sanctionedAmount, p.peerCostMedian, inrLakh)+
+        '<div class="notice" style="margin-top:2px;">Peer median across '+peers.length+' comparable projects. Deviation: <b style="color:'+(p.costDeviationPct>0?'var(--high)':'var(--low)')+'">'+pct(p.costDeviationPct,0)+'</b></div>')+
+      card('Duration vs peer median', compareBars('Duration (days)', duration, p.peerDurationMedianDays, function(v){return v+' d';})+
+        '<div class="notice" style="margin-top:2px;">Peer median for completed comparable projects. Deviation: <b style="color:'+(p.durationDeviationPct>0?'var(--high)':'var(--low)')+'">'+pct(p.durationDeviationPct,0)+'</b></div>')+
+    '</div>'+
+    card('Nearest comparable projects', peers.length ? '<div class="table-wrap"><table><thead><tr><th>ID</th><th>Name</th><th>State</th><th>Sanctioned</th><th>Status</th></tr></thead><tbody>'+
+      peers.map(function(q){return '<tr class="rowlink" data-goto="#/project/'+q.id+'"><td class="mono num-cell"><a href="#/project/'+q.id+'">'+q.id+'</a></td><td>'+esc(q.name)+'</td><td>'+esc(q.state)+'</td><td class="num-cell">'+inrLakh(q.sanctionedAmount)+'</td><td>'+esc(q.status)+'</td></tr>';}).join('')+
+      '</tbody></table></div>' : '<div class="empty">No comparable peers found.</div>', 'margin-bottom:14px;')+
+    card('Relationships', '<div class="relwrap">'+relHtml+'</div>', 'margin-bottom:14px;')+
+    qualityBlock + (qualityBlock ? '<div style="height:14px;"></div>' : '')+
+    '<div class="grid cols-2b">'+
+      card('Why has this been flagged?', '<div style="white-space:pre-wrap; font-size:13px; line-height:1.7;">'+esc(explanation)+'</div>')+
+      card('Recommended investigation steps', '<ol class="rec-list" style="list-style:none; padding:0;">'+p.recommendations.map(function(r,i){return '<li><span class="n">'+(i+1)+'</span><span>'+esc(r)+'</span></li>';}).join('')+'</ol>'+
+        '<div class="notice" style="margin-top:12px;">These are investigative recommendations, not accusations. Give the implementing agency an opportunity to explain before any conclusion.</div>')+
+    '</div>';
+  }
+
+  function field(k,v){ return '<div class="field"><div class="k">'+k+'</div><div class="v">'+esc(v)+'</div></div>'; }
+
+  function explainProject(p){
+    if (!p.signals.length) return 'Project '+p.id+' — '+p.name+' currently has a risk score of '+p.riskScore+'/100 ('+p.riskCategory+'). No specific risk signals were detected; routine verification is suggested.';
+    var parts = p.signals.slice().sort(function(a,b){return b.weight-a.weight;}).map(function(s){return '- '+s.label+' (+'+s.weight+'): '+s.explanation;});
+    return 'Project '+p.id+' — '+p.name+' has a risk score of '+p.riskScore+'/100 ('+p.riskCategory+').\n\nContributing signals:\n'+parts.join('\n')+
+      '\n\nThese signals are risk indicators identified by the analytics engine and require human verification.';
+  }
+
+  // ---------- Geographic ----------
+  function renderGeo(){
+    var states = Object.keys(DASH.stateAgg).map(function(s){ return Object.assign({name:s}, DASH.stateAgg[s]); }).sort(function(a,b){return b.count-a.count;});
+    var maxCount = Math.max.apply(null, states.map(function(s){return s.count;}));
+    var rows = states.map(function(s){
+      var w = (s.count/maxCount)*100;
+      var hw = s.count ? (s.highRisk/s.count)*100 : 0;
+      return '<div class="row" style="grid-template-columns:150px 1fr 90px; display:grid; gap:10px; align-items:center; margin-bottom:11px;">'+
+        '<div class="name" style="white-space:normal;"><a href="#/projects" data-preset-state="'+esc(s.name)+'">'+esc(s.name)+'</a></div>'+
+        '<div class="track" style="height:16px;"><div class="fill" style="width:'+w+'%; background:var(--accent-soft-strong); position:relative; height:100%;">'+
+          '<div style="position:absolute; left:0; top:0; bottom:0; width:'+hw+'%; background:var(--critical); opacity:.75;"></div></div></div>'+
+        '<div class="val">'+s.count+' &middot; <span style="color:var(--critical)">'+s.highRisk+'</span></div>'+
+      '</div>';
+    }).join('');
+    return ''+
+    '<div class="page-head"><h1>Geographic distribution</h1><p>Project concentration and high-risk share by state, computed from project coordinates and state fields. The self-hosted deployment (see README) adds a live district-level map; this view keeps the same underlying risk data in a state-wise ledger.</p></div>'+
+    card('Projects and high-risk concentration by state', '<div style="margin-top:4px;">'+rows+'</div><div class="legend"><span class="item"><span class="dot" style="background:var(--accent-soft-strong); border:1px solid var(--border);"></span>Total projects</span><span class="item"><span class="dot" style="background:var(--critical)"></span>High + Critical risk</span></div>', 'margin-bottom:14px;')+
+    card('Geographic risk indicators detected', '<div class="notice"><b>Clustering:</b> A dense concentration of MPLAD projects was detected around Jaipur, Rajasthan — multiple projects share near-identical coordinates, which is flagged as a geographic pattern signal on the affected projects. See <a href="#/projects">Projects</a> filtered by state = Rajasthan, risk = CRITICAL.</div>');
+  }
+
+  // ---------- Agencies ----------
+  function renderAgencies(){
+    var rows = AGENCIES.map(function(a){
+      return '<tr><td style="font-weight:500;">'+esc(a.agency)+'</td><td class="num-cell">'+a.projects+'</td>'+
+        '<td class="num-cell" style="'+(a.delayRate>0.35?'color:var(--high)':'')+'">'+(a.delayRate*100).toFixed(0)+'%</td>'+
+        '<td class="num-cell">'+(a.medianDurationDays||'—')+'</td>'+
+        '<td class="num-cell" style="'+(a.avgRiskScore>40?'color:var(--high)':'')+'">'+a.avgRiskScore.toFixed(1)+'</td>'+
+        '<td class="num-cell">'+a.highRiskCount+'</td>'+
+        '<td><a href="#/projects" data-preset-agency="'+esc(a.agency)+'">Open projects &rarr;</a></td></tr>';
+    }).join('');
+    return ''+
+    '<div class="page-head"><h1>Implementing agencies</h1><p>Portfolio view of each implementing agency across MPLAD projects. Agencies with an unusually high risk profile deserve targeted verification.</p></div>'+
+    card(null, '<div class="table-wrap"><table><thead><tr><th>Agency</th><th>Projects</th><th>Delay rate</th><th>Median duration (days)</th><th>Avg risk score</th><th>High/critical risk</th><th></th></tr></thead><tbody>'+rows+'</tbody></table></div>');
+  }
+
+  // ---------- Ask AI ----------
+  var qaHistory = [];
+  var SUGGESTIONS = [
+    'Why is MPLAD-01012 high risk?',
+    'Show me high-risk projects in Rajasthan.',
+    'Which agencies have the highest anomaly rates?',
+    'What should I investigate first?',
+    'How is MPLAD implementation in Kerala?'
+  ];
+  function renderAsk(){
+    return ''+
+    '<div class="page-head"><h1>Ask the MPLAD Assistant</h1><p>Answers are grounded strictly in the computed risk analytics and the current dataset — deterministic, so the assistant works with or without an external LLM.</p></div>'+
+    '<div class="card" style="margin-bottom:14px;">'+
+      '<form id="qa-form" style="display:flex; gap:8px;"><input type="text" id="qa-input" placeholder="Ask a question about MPLAD projects, risks or agencies…" style="flex:1; background:var(--panel-2); border:1px solid var(--border); color:var(--text); border-radius:7px; padding:8px 11px; font-size:13px; font-family:inherit;">'+
+      '<button class="btn primary" type="submit">Ask</button></form>'+
+      '<div class="qa-suggest">'+SUGGESTIONS.map(function(s){return '<button data-ask="'+esc(s)+'">'+esc(s)+'</button>';}).join('')+'</div>'+
+    '</div>'+
+    '<div id="qa-history">'+renderQaHistory()+'</div>';
+  }
+  function renderQaHistory(){
+    return qaHistory.map(function(h){
+      return '<div class="qa-bubble"><div class="qa-q">Question</div><div class="qa-q-text">'+esc(h.q)+'</div>'+
+        '<div class="qa-a">Answer</div><div class="qa-a-text">'+esc(h.a)+'</div>'+
+        (h.citations.length ? '<div class="qa-cites">'+h.citations.map(function(c){return '<a class="chip" style="border:1px solid var(--border); color:var(--accent);" href="#/project/'+c.id+'">'+c.id+' — '+esc(c.name)+'</a>';}).join('')+'</div>' : '')+
+        '</div>';
+    }).join('');
+  }
+  function detectState(lower){
+    return OPTS.states.find(function(s){return lower.indexOf(s.toLowerCase())!==-1;}) || '';
+  }
+  function answerQuestion(q){
+    var question = q.trim();
+    var lower = question.toLowerCase();
+    var idMatch = question.match(/MPLAD[-\s]?(\d{4,5})/i);
+    if (idMatch){
+      var id = 'MPLAD-' + idMatch[1].padStart(5,'0');
+      var p = byId[id];
+      if (p) return { answer: explainProject(p), citations:[{id:p.id,name:p.name}] };
+      return { answer: 'No project with id '+id+' was found in the current dataset.', citations: [] };
+    }
+    if (/high[- ]?risk/.test(lower) || /critical/.test(lower)){
+      var st = detectState(lower);
+      var items = PROJECTS.filter(function(p){return p.riskCategory==='HIGH'||p.riskCategory==='CRITICAL';});
+      if (st) items = items.filter(function(p){return p.state===st;});
+      items = items.slice().sort(function(a,b){return b.riskScore-a.riskScore;}).slice(0,5);
+      if (!items.length) return { answer: 'No high or critical risk projects were found'+(st?' in '+st:'')+'.', citations: [] };
+      var list = items.map(function(p){return '• '+p.id+' — '+p.name+' ('+p.state+'); risk '+p.riskScore+'/100 '+p.riskCategory;}).join('\n');
+      return { answer: 'Top '+items.length+' high-risk project(s)'+(st?' in '+st:'')+':\n\n'+list+'\n\nOpen any of them to see the risk signal breakdown and evidence.', citations: items.map(function(p){return {id:p.id,name:p.name};}) };
+    }
+    if (/agenc/i.test(lower)){
+      var rows = AGENCIES.filter(function(a){return a.projects>=10;}).slice(0,5);
+      var list2 = rows.map(function(r){return '• '+r.agency+': avg risk '+r.avgRiskScore.toFixed(1)+'/100, delay rate '+(r.delayRate*100).toFixed(0)+'% across '+r.projects+' projects';}).join('\n');
+      return { answer: 'Implementing agencies with the highest average risk scores:\n\n'+list2, citations: [] };
+    }
+    if (/(what.*investigate|priority|first)/i.test(lower)){
+      var top3 = PROJECTS.slice().sort(function(a,b){return b.riskScore-a.riskScore;}).slice(0,3);
+      var list3 = top3.map(function(p){return '• '+p.id+' — '+p.name+': risk '+p.riskScore+'/100, signals: '+p.signals.slice(0,3).map(function(s){return s.label;}).join('; ');}).join('\n');
+      return { answer: 'Suggested investigation queue (top 3 by risk score):\n\n'+list3, citations: top3.map(function(p){return {id:p.id,name:p.name};}) };
+    }
+    var st2 = detectState(lower);
+    if (st2){
+      var inState = PROJECTS.filter(function(p){return p.state===st2;});
+      var hr = inState.filter(function(p){return p.riskCategory==='HIGH'||p.riskCategory==='CRITICAL';});
+      var totalValue = inState.reduce(function(s,p){return s+p.sanctionedAmount;},0);
+      return { answer: 'In '+st2+', '+inState.length+' MPLAD projects are on record with a sanctioned value of '+inrLakh(totalValue)+'. Of these, '+hr.length+' are flagged as high or critical risk based on cost, timeline, agency, geographic and data-quality signals. Open the Projects page and filter by state to review them.', citations: [] };
+    }
+    return { answer: 'I can answer questions grounded in the current MPLAD dataset. Try one of:\n\n• "Why is MPLAD-01012 high risk?"\n• "Show me high-risk projects in Rajasthan."\n• "Which agencies have the highest anomaly rates?"\n• "What should I investigate first?"', citations: [] };
+  }
+
+  // ---------- Wiring ----------
+  function wireView(key, arg){
+    if (key === 'projects'){
+      bindFilterInputs();
+      document.getElementById('projects-table').innerHTML = renderProjectsTable();
+      bindTableRows();
+      var np = document.getElementById('p-next'), pp = document.getElementById('p-prev');
+      if (np) np.addEventListener('click', function(){ pState.page++; refreshTable(); });
+      if (pp) pp.addEventListener('click', function(){ pState.page--; refreshTable(); });
+    }
+    if (key === 'dashboard' || key === 'geo' || key === 'agencies'){
+      bindTableRows();
+      document.querySelectorAll('[data-preset-state]').forEach(function(el){
+        el.addEventListener('click', function(e){ e.preventDefault(); pState = Object.assign({q:'',state:'',district:'',category:'',status:'',risk:'',agency:'',sort:'risk',page:1}, {state: el.getAttribute('data-preset-state')}); location.hash = '#/projects'; route(); });
+      });
+      document.querySelectorAll('[data-preset-agency]').forEach(function(el){
+        el.addEventListener('click', function(e){ e.preventDefault(); pState = Object.assign({q:'',state:'',district:'',category:'',status:'',risk:'',agency:'',sort:'risk',page:1}, {agency: el.getAttribute('data-preset-agency')}); location.hash = '#/projects'; route(); });
+      });
+    }
+    if (key === 'project'){
+      bindTableRows();
+    }
+    if (key === 'ask'){
+      var form = document.getElementById('qa-form');
+      form.addEventListener('submit', function(e){ e.preventDefault(); doAsk(document.getElementById('qa-input').value); });
+      document.querySelectorAll('[data-ask]').forEach(function(btn){
+        btn.addEventListener('click', function(){ doAsk(btn.getAttribute('data-ask')); });
+      });
+    }
+  }
+
+  function doAsk(q){
+    if (!q || !q.trim()) return;
+    var r = answerQuestion(q);
+    qaHistory.unshift({ q: q.trim(), a: r.answer, citations: r.citations });
+    document.getElementById('qa-history').innerHTML = renderQaHistory();
+    var inp = document.getElementById('qa-input');
+    if (inp) inp.value = '';
+  }
+
+  function bindTableRows(){
+    document.querySelectorAll('tr.rowlink[data-goto]').forEach(function(tr){
+      tr.addEventListener('click', function(e){
+        if (e.target.tagName === 'A') return;
+        location.hash = tr.getAttribute('data-goto');
+      });
+    });
+  }
+
+  function bindFilterInputs(){
+    var map = {'f-q':'q','f-state':'state','f-district':'district','f-category':'category','f-status':'status','f-risk':'risk','f-agency':'agency','f-sort':'sort'};
+    Object.keys(map).forEach(function(elId){
+      var el = document.getElementById(elId);
+      if (!el) return;
+      var evt = el.tagName === 'SELECT' ? 'change' : 'input';
+      el.addEventListener(evt, function(){ pState[map[elId]] = el.value; pState.page = 1; refreshTable(); });
+    });
+    var clearBtn = document.getElementById('f-clear');
+    if (clearBtn) clearBtn.addEventListener('click', function(){
+      pState = { q:'', state:'', district:'', category:'', status:'', risk:'', agency:'', sort:'risk', page:1 };
+      document.getElementById('view').innerHTML = renderProjects();
+      wireView('projects');
+    });
+  }
+  function refreshTable(){
+    document.getElementById('projects-table').innerHTML = renderProjectsTable();
+    bindTableRows();
+    var np = document.getElementById('p-next'), pp = document.getElementById('p-prev');
+    if (np) np.addEventListener('click', function(){ pState.page++; refreshTable(); });
+    if (pp) pp.addEventListener('click', function(){ pState.page--; refreshTable(); });
+  }
+
+  route();
+})();
+</script>
